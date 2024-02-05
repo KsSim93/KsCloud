@@ -1,8 +1,6 @@
-package com.ks.cloud.controller;
+package com.ks.cloud.page.controller;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -14,8 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 public class pageController {
 
 	@GetMapping("/")
-	public ModelAndView index() {
+	public ModelAndView mainPage() {
 		ModelAndView modelAndView = new ModelAndView("index.html");
+		log.info(modelAndView.getViewName());
 		return modelAndView;
 	}
 }
