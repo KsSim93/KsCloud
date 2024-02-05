@@ -42,3 +42,5 @@ logs/
 
 ### API Test Result ###
 /restAPIs.json
+
+**/src/main/resources/static/**
