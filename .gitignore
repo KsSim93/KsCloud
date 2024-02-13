@@ -44,3 +44,5 @@ logs/
 /restAPIs.json
 
 **/src/main/resources/static/**
+
+.metadata
