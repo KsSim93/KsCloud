@@ -18,7 +18,7 @@ repositories {
 dependencies {
 
 	//h2
-	runtimeOnly 'com.h2database:h2'
+	implementation 'com.h2database:h2'
 	
 	//lombok
 	compileOnly 'org.projectlombok:lombok'
