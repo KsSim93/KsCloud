@@ -1,7 +1,11 @@
 <template>
-  <common-header />
-    <Main />
-  <common-footer />
+  <v-app>
+    <v-container>
+      <common-header />
+        <Main />
+      <common-footer />
+    </v-container>
+  </v-app>
 </template>
 
 <script>
