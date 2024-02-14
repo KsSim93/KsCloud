@@ -17,4 +17,17 @@ public class pageController {
 		log.info(modelAndView.getViewName());
 		return modelAndView;
 	}
+	
+	@GetMapping("/error")
+	public ModelAndView getErrorPage() {
+		ModelAndView modelAndView = new ModelAndView("error");
+		log.info(modelAndView.getViewName());
+		return modelAndView;
+	}
+	@GetMapping("/login")
+	public ModelAndView getLoginPage() {
+		ModelAndView modelAndView = new ModelAndView("login");
+		log.info(modelAndView.getViewName());
+		return modelAndView;
+	}
 }
