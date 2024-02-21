@@ -9,7 +9,7 @@
             <v-icon>mdi-home</v-icon>
             HOME
         </v-tab>
-        <v-tab value="USER" to ="/user">
+        <v-tab value="USER" to ="/kscloud/user">
             <v-icon>mdi-account</v-icon>
             USER
             </v-tab>
@@ -24,7 +24,7 @@
             </v-tab>
         </div>
         <div v-else>
-                <v-tab value="LOGOUT" to ="/logout" @click="login">
+                <v-tab value="LOGOUT" @click="login">
                 <v-icon>mdi-logout</v-icon>
                     LOGOUT
                 </v-tab>
@@ -46,12 +46,12 @@ export default{
     methods: {
         login() {
             if (this.username === '') {
-                axios.get("/login")
+                axios.get("/api/login")
                 .then(response => {
                     console.log(response.data)
                 }).catch();
             } else {
-                axios.get("/logout")
+                axios.get("/api/logout")
                 .then(response => {
                     console.log(response.data)
                 }).catch();

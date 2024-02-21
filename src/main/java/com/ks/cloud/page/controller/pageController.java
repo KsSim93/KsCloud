@@ -1,33 +1,24 @@
 package com.ks.cloud.page.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-@RestController
+@Controller
 public class pageController {
 
-	@GetMapping("/")
-	public ModelAndView mainPage() {
-		ModelAndView modelAndView = new ModelAndView("index.html");
-		log.info(modelAndView.getViewName());
-		return modelAndView;
+	@RequestMapping(value = {"/","/kscloud/**"})
+	public String viewMapping() {
+		log.info("get paging");
+		return "forward:/index.html";
 	}
-	
-	@GetMapping("/error")
-	public ModelAndView getErrorPage() {
-		ModelAndView modelAndView = new ModelAndView("error");
-		log.info(modelAndView.getViewName());
-		return modelAndView;
+	@RequestMapping(value = {"/login"})
+	public String goLogin() {
+		log.info("get login");
+		return "forward:/index.html";
 	}
-	@GetMapping("/login")
-	public ModelAndView getLoginPage() {
-		ModelAndView modelAndView = new ModelAndView("login");
-		log.info(modelAndView.getViewName());
-		return modelAndView;
-	}
+
 }

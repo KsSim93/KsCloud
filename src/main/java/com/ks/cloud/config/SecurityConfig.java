@@ -34,25 +34,26 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-	
+
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
                                 .requestMatchers("/swagger-ui/**").hasRole("ADMIN")
-                                //.requestMatchers("/**").authenticated()
-                                .anyRequest().authenticated()	// 어떠한 요청이라도 인증필요
+                                .requestMatchers("/kscloud/**").hasAnyRole("ADMIN","USER")
+                                .anyRequest().permitAll()	// 어떠한 요청이라도 인증필요없음.
                 )
                 .formLogin(login -> login	// form 방식 로그인 사용
                                 .defaultSuccessUrl("/", true)	// 성공 시 메인
                                 .successHandler(successHandler())
-                                .loginProcessingUrl("/login")
+                                .loginPage("/login")
+                                .loginProcessingUrl("/api/login")
                                 .usernameParameter("username")
                                 .passwordParameter("password")
                                 .permitAll()
                 )
                 .logout(logout -> logout	// 로그아웃 설정
-                                .logoutRequestMatcher(new AntPathRequestMatcher("/logout")) // 로그아웃 URL 설정
+                                .logoutRequestMatcher(new AntPathRequestMatcher("/api/logout")) // 로그아웃 URL 설정
                                 .logoutSuccessUrl("/login") // 로그아웃 성공 후 이동할 페이지
                                 .invalidateHttpSession(true) // HTTP 세션 무효화
                                 .deleteCookies("JSESSIONID") // 쿠키 삭제
@@ -74,9 +75,9 @@ public class SecurityConfig {
                         }) // 403 에러 핸들링
                         */
                 );
-		 return http.build();	
+		 return http.build();
 	}
-	
+
 	@Bean
     public AuthenticationSuccessHandler successHandler() {
         return new SimpleUrlAuthenticationSuccessHandler() {
