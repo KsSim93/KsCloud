@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
+import UserInfo from '../views/UserInfo.vue'
+import Login from '../views/login/Login.vue'
 
 const routes = [
   {
@@ -8,14 +10,14 @@ const routes = [
     component: Home
   },
   {
-    path: '/user',
+    path: '/kscloud/user',
     name: 'user',
-    component: () => import(/* webpackChunkName: "about" */ '../views/UserInfo.vue')
+    component: UserInfo
   },
   {
     path: '/login',
     name: 'login',
-    component: () => import(/* webpackChunkName: "about" */ '../views/login/Login.vue')
+    component: Login
   }
 ]
 

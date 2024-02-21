@@ -23,7 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-    
+
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         Users user = usersRepository.findByUserIdEquals(userId);
@@ -36,5 +36,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         return new User(user.getUserId(),encodedPassword,authorities);
     }
-    
+
 }

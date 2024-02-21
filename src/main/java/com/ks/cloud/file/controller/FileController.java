@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class FileController {
 
-	@GetMapping("/list")
+	@GetMapping("/api/list")
 	public String getFileList() {
 		log.info("into get File List");
 		return "";
