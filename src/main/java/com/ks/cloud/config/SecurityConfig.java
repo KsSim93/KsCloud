@@ -4,76 +4,61 @@ import java.io.IOException;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ks.cloud.config.filter.CustomAuthenticationFilter;
+import com.ks.cloud.config.handler.LoginFailureHandler;
+import com.ks.cloud.config.handler.LoginSuccessJWTProvideHandler;
+import com.ks.cloud.security.UserDetailsServiceImpl;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	private final UserDetailsServiceImpl userDetailsService;
+	private final ObjectMapper objectMapper;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                                .requestMatchers("/swagger-ui/**").hasRole("ADMIN")
-                                .requestMatchers("/kscloud/**").hasAnyRole("ADMIN","USER")
+                 //               .requestMatchers("/swagger-ui/**").hasRole("ADMIN")
+                 //               .requestMatchers("/kscloud/**").hasAnyRole("ADMIN","USER")
                                 .anyRequest().permitAll()	// 어떠한 요청이라도 인증필요없음.
                 )
-                .formLogin(login -> login	// form 방식 로그인 사용
-                                .defaultSuccessUrl("/", true)	// 성공 시 메인
-                                .successHandler(successHandler())
-                                .loginPage("/login")
-                                .loginProcessingUrl("/api/login")
-                                .usernameParameter("username")
-                                .passwordParameter("password")
-                                .permitAll()
-                )
+                .formLogin(AbstractHttpConfigurer::disable)
+				.addFilterAfter(customLoginFilter(), LogoutFilter.class) // 추가 : 커스터마이징 된 필터를 SpringSecurityFilterChain에 등록
                 .logout(logout -> logout	// 로그아웃 설정
                                 .logoutRequestMatcher(new AntPathRequestMatcher("/api/logout")) // 로그아웃 URL 설정
                                 .logoutSuccessUrl("/login") // 로그아웃 성공 후 이동할 페이지
                                 .invalidateHttpSession(true) // HTTP 세션 무효화
                                 .deleteCookies("JSESSIONID") // 쿠키 삭제
-              /*  )
-                .exceptionHandling(handling -> handling
-                        .authenticationEntryPoint(new AuthenticationEntryPoint() {
-                            @Override
-                            public void commence(HttpServletRequest request, HttpServletResponse response,
-                                         AuthenticationException authException) throws IOException, ServletException {
-                                response.sendRedirect("/index.html");
-                            }
-                        })//401 에러 핸들링
-                        .accessDeniedHandler(new AccessDeniedHandler() {
-                            @Override
-                            public void handle(HttpServletRequest request, HttpServletResponse response,
-                                       AccessDeniedException accessDeniedException) throws IOException, ServletException {
-                                response.sendRedirect("/index.html");
-                            }
-                        }) // 403 에러 핸들링
-                        */
                 );
 		 return http.build();
 	}
@@ -95,4 +80,48 @@ public class SecurityConfig {
             }
         };
     }
+
+	// 인증 관리자 관련 설정
+	@Bean
+	public DaoAuthenticationProvider daoAuthenticationProvider() throws Exception {
+		DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+
+		daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+		daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+
+		return daoAuthenticationProvider;
+	}
+
+    @Bean
+    public AuthenticationManager authenticationManager() throws Exception {
+        DaoAuthenticationProvider authProvider = daoAuthenticationProvider();//DaoAuthenticationProvider 사용
+        //authProvider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(authProvider);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public LoginSuccessJWTProvideHandler loginSuccessJWTProvideHandler(){
+        return new LoginSuccessJWTProvideHandler();
+    }
+
+    @Bean
+    public LoginFailureHandler loginFailureHandler(){
+        return new LoginFailureHandler();
+    }
+
+    @Bean
+	public CustomAuthenticationFilter customLoginFilter() throws Exception {
+		CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(objectMapper);
+		customAuthenticationFilter.setAuthenticationManager(authenticationManager());
+        customAuthenticationFilter.setAuthenticationSuccessHandler(loginSuccessJWTProvideHandler());
+		customAuthenticationFilter.setAuthenticationFailureHandler(loginFailureHandler());
+
+		return customAuthenticationFilter;
+	}
+
 }
