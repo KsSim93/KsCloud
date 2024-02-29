@@ -15,20 +15,20 @@ import org.springframework.stereotype.Service;
 import com.ks.cloud.entity.Users;
 import com.ks.cloud.users.repository.UsersRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
     private UsersRepository usersRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     @Override
-    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        Users user = usersRepository.findByUserIdEquals(userId);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Users user = usersRepository.findByUserIdEquals(username);
         if (user == null) {
-            throw new UsernameNotFoundException("User not found with username: " + userId);
+            throw new UsernameNotFoundException("User not found with username: " + username);
         }
         // 비밀번호 암호화 및 사용자 역할 설정
         String encodedPassword = user.getPassword();

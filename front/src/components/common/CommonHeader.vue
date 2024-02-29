@@ -34,8 +34,6 @@
 
 <script>
 
-import axios from 'axios'
-
 export default{
     data() {
         return {
@@ -46,16 +44,9 @@ export default{
     methods: {
         login() {
             if (this.username === '') {
-                axios.get("/api/login")
-                .then(response => {
-                    console.log(response.data)
-                }).catch();
+               console.log("username is null ")
             } else {
-                axios.get("/api/logout")
-                .then(response => {
-                    console.log(response.data)
-                }).catch();
-                this.username = ''
+                console.log("logout")
             }
         },
     },
